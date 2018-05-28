@@ -31,7 +31,7 @@ def execute():
         equity = [0 for _ in range(0, numPayments + 1)]
         equity[0] = downPayment
         pmiSwitch = False
-        
+
         pv = [0 for _ in range(0, numPayments+1)]
         pv[0] = -(downPayment + loanAmt * loan['points'] + loan['closingCosts'])
         for month in range(1, numPayments + 1):
@@ -40,6 +40,27 @@ def execute():
             if equity[month] / 0.2 > house['price'] and not pmiSwitch:
                 totalMoPayment += loan['pmi']
                 pmiSwitch = True
+            if loan['type'] == "5/5ARM" and month % (12 * 5) == 0 and month < loan['term']*12-1:
+                newMonthlyInt = min(monthlyInt + loan['armIncAmt']/12/100, loan['armMaxAmt'] / 12/ 100)
+                newIntFactor = (1.0 + newMonthlyInt) ** (numPayments - month)
+                newMonthlyPayment = (house['price'] - equity[month]) * newMonthlyInt * newIntFactor / (newIntFactor - 1)
+                print("New monthly payment:", newMonthlyPayment, "old monthly payment:", monthlyPayment)
+
+                totalMoPayment += newMonthlyPayment - monthlyPayment
+                monthlyPayment = newMonthlyPayment
+                monthlyInt = newMonthlyInt
+                intFactor = newIntFactor
+                
+            if loan['type'] == "10/1ARM" and month >= 12 * 10 and month % 12 == 0 and month < loan['term']*12-1:
+                newMonthlyInt = min(monthlyInt + loan['armIncAmt']/12/100, loan['armMaxAmt'] / 12 / 100)
+                newIntFactor = (1.0 + newMonthlyInt) ** (numPayments - month)
+                newMonthlyPayment = (house['price'] - equity[month]) * newMonthlyInt * newIntFactor / (newIntFactor - 1)
+                print("New monthly payment:", newMonthlyPayment, "old monthly payment:", monthlyPayment, "rate:", newMonthlyInt * 12 * 100)
+
+                totalMoPayment += newMonthlyPayment - monthlyPayment
+                monthlyPayment = newMonthlyPayment
+                monthlyInt = newMonthlyInt
+                intFactor = newIntFactor
 
             pv[month] = -totalMoPayment / (1.0 + house['marketInt']/12.0/100.0) ** month
 
@@ -60,9 +81,9 @@ def execute():
     print(headerFmt.format(*[loan[0] for loan in monthlyPayments]))
     print(rowFmt.format(*[loan[1] for loan in monthlyPayments]))
 
-    # Print all NPVs, sorted by the value at year 10
+    # Print all NPVs, sorted by the value at the given year
     print('\n=== Net Present Value ===')
-    npvs.sort(key = lambda npv : npv[1][10], reverse=True)
+    npvs.sort(key = lambda npv : npv[1][house['targetYear']], reverse=True)
     headerFmt = "{:5}" + headerFmt
     print(headerFmt.format("", *[npv[0] for npv in npvs]))
     rowFmt = "{:<5}" + rowFmt
