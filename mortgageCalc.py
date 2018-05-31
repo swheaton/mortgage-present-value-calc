@@ -12,6 +12,9 @@ def execute():
     house = data['houseDetails']
     loans = data['loans']
     
+    #Combine avg rate of return with avg inflation to get discount rate
+    discountFactor = (1 + house['marketInt'] / 100.0) * (1 + house['avgInflation'] / 100.0) - 1;
+    
     npvs = []
     monthlyPayments = []
     for loan in loans:
@@ -33,12 +36,13 @@ def execute():
         pmiSwitch = False
 
         pv = [0 for _ in range(0, numPayments+1)]
-        pv[0] = -(downPayment + loanAmt * loan['points'] + loan['closingCosts'])
+        pv[0] = -(downPayment + loanAmt * loan['points']/100 + loan['closingCosts'])
         for month in range(1, numPayments + 1):
             equity[month] = equity[month-1] + monthlyPayment - (loanAmt - equity[month-1] + equity[0]) * monthlyInt
             #Check if pmi is up
             if equity[month] / 0.2 > house['price'] and not pmiSwitch:
-                totalMoPayment += loan['pmi']
+                totalMoPayment -= loan['pmi']
+                print("new monthly payment for", loan['name'], "at month", month, ":", totalMoPayment)
                 pmiSwitch = True
             if loan['type'] == "5/5ARM" and month % (12 * 5) == 0 and month < loan['term']*12-1:
                 newMonthlyInt = min(monthlyInt + loan['armIncAmt']/12/100, loan['armMaxAmt'] / 12/ 100)
@@ -62,14 +66,14 @@ def execute():
                 monthlyInt = newMonthlyInt
                 intFactor = newIntFactor
 
-            pv[month] = -totalMoPayment / (1.0 + house['marketInt']/12.0/100.0) ** month
+            pv[month] = -totalMoPayment / (1.0 + discountFactor/12.0) ** month
 
         
         npv = [0 for _ in range(0, loan['term'] + 1)]
         for yr in range(0, loan['term'] + 1):
             npv[yr] = sum(pv[0:12*yr+1])
             currEquity = equity[yr * 12]
-            npv[yr] += currEquity / (1.0 + house['marketInt']/100.0) ** yr
+            npv[yr] += currEquity / (1.0 + discountFactor) ** yr
         npv[0] = pv[0]
         npvs.append((str(loan['name']), npv))
     
