@@ -1,0 +1,37 @@
+{
+    "houseDetails":
+    {
+        "price": 250000,
+        "annualPropTax": 2500,
+        "annualHoaFee": 400,
+        "annualInsurance": 900,
+        "marketInt": 7.0,
+        "avgInflation": 2.0,
+        "targetYear": 10
+    },
+    "loans":
+    [
+        {
+            "name": "Loan1",
+            "type": "fixed",
+            "intRate": 5.5,
+            "points": 0.1,
+            "downPayment": 10.0,
+            "pmi": 200,
+            "closingCosts": 11000,
+            "term": 30
+        },
+        {
+            "name": "Loan2",
+            "type": "10/1ARM",
+            "intRate": 4.5,
+            "armIncAmt": 2.0,
+            "armMaxAmt": 9.5,
+            "points": 0.0,
+            "downPayment": 5.0,
+            "pmi": 200,
+            "closingCosts": 14463,
+            "term": 30
+        }
+    ]
+}
