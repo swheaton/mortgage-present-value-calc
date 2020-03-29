@@ -21,6 +21,7 @@ def execute():
     monthlyPayments = []
     # Evaluate each loan
     for loan in loans:
+        # Initialize payment values and stuff from params
         monthlyInterestRate = loan['intRate'] / 12.0 / 100.0
         downPayment = house['price'] * loan['downPayment'] / 100.0
         loanAmt = (house['price'] - downPayment)
@@ -36,9 +37,9 @@ def execute():
 
         equity = [0] * (numPayments + 1)
         equity[0] = downPayment
-
         hasPmi = 'pmi' in loan and loan['pmi'] > 0
 
+        # Update present value and equity each month
         pv = [0] * (numPayments+1)
         pv[0] = -(downPayment + loanAmt * loan['points'] / 100 + loan['closingCosts'])
         for month in range(1, numPayments + 1):
@@ -57,12 +58,15 @@ def execute():
             # Make payment, but discount back to today's dollars
             pv[month] = -totalMoPayment / (1.0 + discountFactor/12.0) ** month
 
+        # Sum up pvs to get npv
+        #   Except let's also add in discounted equity value in the home since we don't really
+        #   get that value until it's sold
         npv = [0] * (loan['term'] + 1)
-        for yr in range(0, loan['term'] + 1):
+        npv[0] = pv[0]
+        for yr in range(1, loan['term'] + 1):
             npv[yr] = sum(pv[: 12 * yr + 1])
             currEquity = equity[yr * 12]
             npv[yr] += currEquity / (1.0 + discountFactor) ** yr
-        npv[0] = pv[0]
         npvs.append((str(loan['name']), npv))
 
     print("=== Monthly Payments ===")
