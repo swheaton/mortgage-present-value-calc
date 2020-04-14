@@ -1,4 +1,5 @@
 import json
+from tabulate import tabulate
 
 
 def readJson(filename):
@@ -92,22 +93,13 @@ def execute():
 
     print("=== Monthly Payments ===")
     monthlyPayments.sort(key=lambda lambda_loan : lambda_loan[1])
-    headerFmt = "{:30}" * len(monthlyPayments)
-    rowFmt = "{:<30}" * len(monthlyPayments)
+    print(tabulate([[loan[1] for loan in monthlyPayments]], headers=[loan[0] for loan in monthlyPayments]))
 
-    print(headerFmt.format(*[loan[0] for loan in monthlyPayments]))
-    print(rowFmt.format(*[loan[1] for loan in monthlyPayments]))
-
-    # Print all NPVs, sorted by the value at the given year
     print('\n=== Net Present Value ===')
     npvs.sort(key=lambda lambda_npv : lambda_npv[1][house['targetYear']], reverse=True)
-    headerFmt = "{:5}" + headerFmt
-    print(headerFmt.format("", *[npv[0] for npv in npvs]))
-    rowFmt = "{:<5}" + rowFmt
-
     maxLoanTerm = max([loan['term'] for loan in loans])
-    for yr in range(0, maxLoanTerm + 1):
-        print(rowFmt.format(yr, * [npv[1][yr] if len(npv[1]) > yr else 0 for npv in npvs] ))
+    print(tabulate([[yr]+[npv[1][yr] for npv in npvs] for yr in range(0, maxLoanTerm + 1)],
+                   headers=[loan[0] for loan in monthlyPayments]))
 
 
 execute()
