@@ -66,7 +66,12 @@ def execute():
         for yr in range(1, loan['term'] + 1):
             npv[yr] = sum(pv[: 12 * yr + 1])
             currEquity = equity[yr * 12]
-            npv[yr] += currEquity / (1.0 + discountFactor) ** yr
+
+            # Assume selling house at a market-inflated rate
+            inflatedHousePrice = house['price'] * (1 + market['avgInflation'] / 100.0) ** yr
+            pctEquity = currEquity / house['price']
+            saleProceeds = inflatedHousePrice * (pctEquity - market['agentRate'] / 100.0)
+            npv[yr] += saleProceeds / (1.0 + discountFactor) ** yr
         npvs.append((str(loan['name']), npv))
 
     print("=== Monthly Payments ===")
