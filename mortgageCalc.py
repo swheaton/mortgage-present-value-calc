@@ -1,15 +1,31 @@
 import json
 
+
 def readJson(filename):
     with open(filename) as file:
-        jsonData = file.read()
-        data = json.loads(jsonData)
+        data = json.load(file)
         return data
-    return None
+
+defaultParams = {
+    "market": {
+        "avgInflation": 2.0,
+        "marketInt": 7.0,
+        "agentRate": 6.0
+    }
+}
+
+# recursive dict merge gleaned from https://gist.github.com/angstwad/bf22d1822c38a92ec0a9
+def dict_merge(dct, merge_dct):
+    for k, v in merge_dct.items():
+        if isinstance(dct.get(k), dict) and isinstance(v, dict):
+            dict_merge(dct[k], v)
+        else:
+            dct[k] = v
 
 def execute():
     # get json params
-    data = readJson('params.json')
+    data = dict(defaultParams)
+    dict_merge(data, readJson('params.json'))
     house = data['houseDetails']
     market = data['market']
     loans = data['loans']
