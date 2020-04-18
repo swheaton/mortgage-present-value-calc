@@ -32,6 +32,7 @@ def execute():
     loans = data['loans']
 
     # Combine avg rate of return with avg inflation to get discount rate
+    #   Using the Fisher Equation
     discountFactor = (1 + market['marketInt'] / 100.0) * (1 + market['avgInflation'] / 100.0) - 1;
 
     npvs = []
