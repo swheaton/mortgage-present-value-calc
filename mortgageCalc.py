@@ -70,7 +70,7 @@ def execute():
             # Check if pmi can be removed - assumes no price inflation
             if hasPmi and equity[month] / 0.2 > house['price']:
                 totalMoPayment -= loan['pmi']
-                print("New monthly payment (no PMI) for", loan['name'], "at month", month, ":", totalMoPayment)
+                print(f"New monthly payment (no PMI) for {loan['name']} at month {month} :{'%.2f' % totalMoPayment}")
                 hasPmi = False
 
             # Make payment, but discount back to today's dollars
@@ -92,7 +92,7 @@ def execute():
             npv[yr] += saleProceeds / (1.0 + discountFactor) ** yr
         npvs.append((str(loan['name']), npv))
 
-    print("=== Monthly Payments ===")
+    print("=== Initial Monthly Payments ===")
     monthlyPayments.sort(key=lambda lambda_loan : lambda_loan[1])
     print(tabulate([[loan[1] for loan in monthlyPayments]], headers=[loan[0] for loan in monthlyPayments]))
 
@@ -103,4 +103,5 @@ def execute():
                    headers=[loan[0] for loan in monthlyPayments]))
 
 
-execute()
+if __name__ == '__main__':
+    execute()
