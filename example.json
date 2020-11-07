@@ -1,48 +1,48 @@
 {
-    "market": {
-        "avgInflation": 2.0,
-        "marketInt": 7.0,
-        "agentRate": 6.0
-    },
-    "houseDetails":
+  "market": {
+    "avgInflation": 2.0,
+    "marketInt": 7.0,
+    "agentRate": 6.0
+  },
+  "houseDetails": {
+    "price": 322000,
+    "value": 324000,
+    "annualPropTax": 3500,
+    "annualHoaFee": 90,
+    "annualInsurance": 900,
+    "targetYear": 10
+  },
+  "loans": [
     {
-        "price": 322000,
-        "annualPropTax": 3500,
-        "annualHoaFee": 90,
-        "annualInsurance": 900,
-        "targetYear": 10
+      "name": "Loan1-minDown",
+      "type": "fixed",
+      "intRate": 4.5,
+      "points": 0.0,
+      "downPayment": 3.0,
+      "pmi": 200,
+      "closingCosts": 10000,
+      "rollInCosts": 0,
+      "term": 30
     },
-    "loans":
-    [
-        {
-            "name": "Loan1-minDown",
-            "type": "fixed",
-            "intRate": 4.5,
-            "points": 0.0,
-            "downPayment": 3.0,
-            "pmi": 200,
-            "closingCosts": 14463,
-            "term": 30
-        },
-        {
-            "name": "Loan1-maxDown",
-            "type": "fixed",
-            "intRate": 4.5,
-            "points": 0.0,
-            "downPayment": 20.0,
-            "pmi": 0,
-            "closingCosts": 14463,
-            "term": 30
-        },
-        {
-            "name": "Loan2",
-            "type": "fixed",
-            "intRate": 4.0,
-            "points": 1.0,
-            "downPayment": 3.0,
-            "pmi": 200,
-            "closingCosts": 11000,
-            "term": 30
-        }
-    ]
+    {
+      "name": "Loan1-maxDown",
+      "type": "fixed",
+      "intRate": 4.5,
+      "points": 0.0,
+      "downPayment": 20.0,
+      "pmi": 0,
+      "closingCosts": 10000,
+      "term": 30
+    },
+    {
+      "name": "Loan2",
+      "type": "fixed",
+      "intRate": 4.0,
+      "points": 1.0,
+      "downPayment": 3.0,
+      "pmi": 200,
+      "closingCosts": 10000,
+      "term": 30
+    }
+  ]
 }

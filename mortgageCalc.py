@@ -42,7 +42,7 @@ def execute():
         # Initialize payment values and stuff from params
         monthlyInterestRate = loan['intRate'] / 12.0 / 100.0
         downPayment = house['price'] * loan['downPayment'] / 100.0
-        loanAmt = (house['price'] - downPayment)
+        loanAmt = (house['price'] - downPayment) + (loan['rollInCosts'] if 'rollInCosts' in loan else 0)
         numPayments = 12 * loan['term']
         interestFactor = (1.0 + monthlyInterestRate) ** numPayments
         monthlyPayment = loanAmt * monthlyInterestRate * interestFactor / (interestFactor - 1)
@@ -54,7 +54,7 @@ def execute():
         monthlyPayments.append((str(loan['name']), totalMoPayment))
 
         equity = [0] * (numPayments + 1)
-        equity[0] = downPayment
+        equity[0] = (house['value'] - loanAmt)
         hasPmi = 'pmi' in loan and loan['pmi'] > 0
 
         # Update present value and equity each month
@@ -86,9 +86,8 @@ def execute():
             currEquity = equity[yr * 12]
 
             # Assume selling house at a market-inflated rate
-            inflatedHousePrice = house['price'] * (1 + market['avgInflation'] / 100.0) ** yr
-            pctEquity = currEquity / house['price']
-            saleProceeds = inflatedHousePrice * (pctEquity - market['agentRate'] / 100.0)
+            inflatedHousePrice = house['value'] * (1 + market['avgInflation'] / 100.0) ** yr
+            saleProceeds = currEquity + (1 - market['agentRate'] / 100.0) * inflatedHousePrice - house['value']
             npv[yr] += saleProceeds / (1.0 + discountFactor) ** yr
         npvs.append((str(loan['name']), npv))
 
@@ -99,8 +98,8 @@ def execute():
     print('\n=== Net Present Value ===')
     npvs.sort(key=lambda lambda_npv : lambda_npv[1][house['targetYear']], reverse=True)
     maxLoanTerm = max([loan['term'] for loan in loans])
-    print(tabulate([[yr]+[npv[1][yr] for npv in npvs] for yr in range(0, maxLoanTerm + 1)],
-                   headers=[loan[0] for loan in monthlyPayments]))
+    print(tabulate([[yr]+[npv[1][min(yr, len(npv[1]) - 1)] for npv in npvs] for yr in range(0, maxLoanTerm + 1)],
+                   headers=[loan[0] for loan in npvs]))
 
 
 if __name__ == '__main__':
